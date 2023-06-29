@@ -6,7 +6,3 @@ type CheckVendorResponse struct {
 	Duration   int64  `json:"duration"`
 	Date       int64  `json:"date"`
 }
-
-type ApiErrorResponse struct {
-	ErrorMessage string `json:"error_message"`
-}
