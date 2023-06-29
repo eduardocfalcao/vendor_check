@@ -1,0 +1,10 @@
+### check Amazon 
+GET http://localhost:8000/v1/amazon-status
+
+
+### Check Google
+GET http://localhost:8000/v1/google-status
+
+
+### Check all
+GET http://localhost:8000/v1/all-status
