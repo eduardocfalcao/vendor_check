@@ -59,33 +59,26 @@ func HandlerGetGoogleStatus(client httpClient) apiFunc {
 func HandlerGetAllStatus(client httpClient) apiFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var wg sync.WaitGroup
-		wg.Add(2)
-		googleResponse := CheckVendorResponse{}
-		amazonResponse := CheckVendorResponse{}
+		var mux sync.Mutex
+		responses := []CheckVendorResponse{}
 
-		go func(resp *CheckVendorResponse) {
-			defer wg.Done()
-			r, err := getVendorStatus(client, googleUrl)
-			*resp = r
-			if err != nil {
-				log.Printf("an error occurred when trying to check vendor: %s. %s", googleUrl, err)
-			}
-		}(&googleResponse)
-
-		go func(resp *CheckVendorResponse) {
-			defer wg.Done()
-			r, err := getVendorStatus(client, amazonUrl)
-			*resp = r
-			if err != nil {
-				log.Printf("an error occurred when trying to check vendor: %s. %s", amazonUrl, err)
-			}
-		}(&amazonResponse)
+		for _, url := range []string{amazonUrl, googleUrl} {
+			wg.Add(1)
+			go func(u string) {
+				defer wg.Done()
+				r, err := getVendorStatus(client, u)
+				mux.Lock()
+				responses = append(responses, r)
+				mux.Unlock()
+				if err != nil {
+					log.Printf("an error occurred when trying to check vendor: %s. %s", googleUrl, err)
+				}
+			}(url)
+		}
 
 		wg.Wait()
 
-		result := []CheckVendorResponse{amazonResponse, googleResponse}
-
-		if err := json.NewEncoder(w).Encode(result); err != nil {
+		if err := json.NewEncoder(w).Encode(responses); err != nil {
 			log.Printf("An error occurred when enconding the response. %s", err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
