@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"sync"
@@ -26,13 +25,15 @@ func HandlerGetAmazonStatus(client httpClient) apiFunc {
 
 		if err != nil {
 			log.Printf("An error occurred when trying to check Amazon vendor. %s", err)
-			writeJSON(w, http.StatusInternalServerError, ApiErrorResponse{
-				ErrorMessage: "Some error occurred.",
-			})
-			return
 		}
 
-		writeJSON(w, http.StatusOK, vendorResponse)
+		w.Header().Add("Content-Type", "application/json")
+
+		if err := json.NewEncoder(w).Encode(vendorResponse); err != nil {
+			log.Printf("An error occurred when enconding the response. %s", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 	}
 }
 
@@ -42,55 +43,50 @@ func HandlerGetGoogleStatus(client httpClient) apiFunc {
 
 		if err != nil {
 			log.Printf("An error occurred when trying to check Google vendor. %s", err)
-			writeJSON(w, http.StatusInternalServerError, ApiErrorResponse{
-				ErrorMessage: "Some error occurred.",
-			})
-			return
 		}
 
-		writeJSON(w, http.StatusOK, vendorResponse)
+		if err := json.NewEncoder(w).Encode(vendorResponse); err != nil {
+			log.Printf("An error occurred when enconding the response. %s", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 	}
 }
 
 func HandlerGetAllStatus(client httpClient) apiFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		response := make([]CheckVendorResponse, 0, 2)
 		var wg sync.WaitGroup
 		wg.Add(2)
-		responseChan := make(chan CheckVendorResponse, 2)
-		errorChan := make(chan error, 2)
+		googleResponse := CheckVendorResponse{}
+		amazonResponse := CheckVendorResponse{}
 
-		for _, vendorUrl := range []string{amazonUrl, googleUrl} {
+		go func(resp *CheckVendorResponse) {
+			defer wg.Done()
+			r, err := getVendorStatus(client, googleUrl)
+			*resp = r
+			if err != nil {
+				log.Printf("an error occurred when trying to check vendor: %s. %s", googleUrl, err)
+			}
+		}(&googleResponse)
 
-			go func(url string) {
-				defer wg.Done()
-				response, err := getVendorStatus(client, url)
-				if err != nil {
-					errorChan <- fmt.Errorf("an error occurred when trying to check vendor: %s. %w", url, err)
-					return
-				}
-				responseChan <- response
-
-			}(vendorUrl)
-		}
+		go func(resp *CheckVendorResponse) {
+			defer wg.Done()
+			r, err := getVendorStatus(client, amazonUrl)
+			*resp = r
+			if err != nil {
+				log.Printf("an error occurred when trying to check vendor: %s. %s", amazonUrl, err)
+			}
+		}(&amazonResponse)
 
 		wg.Wait()
-		close(responseChan)
-		close(errorChan)
 
-		for r := range responseChan {
-			response = append(response, r)
-		}
+		result := []CheckVendorResponse{amazonResponse, googleResponse}
 
-		if err := <-errorChan; err != nil {
-			log.Print(err)
-			writeJSON(w, http.StatusInternalServerError, ApiErrorResponse{
-				ErrorMessage: "Some error occurred.",
-			})
+		if err := json.NewEncoder(w).Encode(result); err != nil {
+			log.Printf("An error occurred when enconding the response. %s", err)
+			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-
-		writeJSON(w, http.StatusOK, response)
 	}
 }
 
@@ -100,7 +96,12 @@ func getVendorStatus(client httpClient, url string) (CheckVendorResponse, error)
 	duration := time.Since(start).Milliseconds()
 
 	if err != nil {
-		return CheckVendorResponse{}, err
+		return CheckVendorResponse{
+			Url:        url,
+			StatusCode: http.StatusInternalServerError,
+			Duration:   duration,
+			Date:       time.Now().UTC().Unix(),
+		}, err
 	}
 
 	vendorResponse := CheckVendorResponse{
@@ -110,14 +111,4 @@ func getVendorStatus(client httpClient, url string) (CheckVendorResponse, error)
 		Date:       time.Now().UTC().Unix(),
 	}
 	return vendorResponse, nil
-}
-
-func writeJSON(w http.ResponseWriter, status int, obj any) error {
-	w.WriteHeader(status)
-	w.Header().Add("Content-Type", "application/json")
-
-	if err := json.NewEncoder(w).Encode(obj); err != nil {
-		return err
-	}
-	return nil
 }

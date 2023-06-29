@@ -41,8 +41,8 @@ func TestHandlerGetAmazonStatus(t *testing.T) {
 		},
 		{
 			Name:               "Should Return an error",
-			HeadStatusCode:     http.StatusOK,
-			ExpectedStatusCode: http.StatusInternalServerError,
+			HeadStatusCode:     http.StatusInternalServerError,
+			ExpectedStatusCode: http.StatusOK,
 			ErrToReturn:        errors.New("some error"),
 		},
 	}
@@ -95,8 +95,8 @@ func TestHandlerGetGoogleStatus(t *testing.T) {
 		},
 		{
 			Name:               "Should Return an error",
-			HeadStatusCode:     http.StatusOK,
-			ExpectedStatusCode: http.StatusInternalServerError,
+			HeadStatusCode:     http.StatusInternalServerError,
+			ExpectedStatusCode: http.StatusOK,
 			ErrToReturn:        errors.New("some error"),
 		},
 	}
@@ -166,18 +166,18 @@ func TestHandlerGetAllStatus(t *testing.T) {
 				},
 				{
 					Url:            googleUrl,
-					HeadStatusCode: http.StatusOK,
+					HeadStatusCode: http.StatusInternalServerError,
 					ErrToReturn:    errors.New("some error"),
 				},
 			},
-			ExpectedStatusCode: http.StatusInternalServerError,
+			ExpectedStatusCode: http.StatusOK,
 		},
 		{
 			Name: "Should return an error if amazon vendor returns an error",
 			VendorCalls: []VendorCall{
 				{
 					Url:            amazonUrl,
-					HeadStatusCode: http.StatusOK,
+					HeadStatusCode: http.StatusInternalServerError,
 					ErrToReturn:    errors.New("some error"),
 				},
 				{
@@ -186,23 +186,23 @@ func TestHandlerGetAllStatus(t *testing.T) {
 					ErrToReturn:    nil,
 				},
 			},
-			ExpectedStatusCode: http.StatusInternalServerError,
+			ExpectedStatusCode: http.StatusOK,
 		},
 		{
 			Name: "Should return error if both vendors returns an error",
 			VendorCalls: []VendorCall{
 				{
 					Url:            amazonUrl,
-					HeadStatusCode: http.StatusOK,
+					HeadStatusCode: http.StatusInternalServerError,
 					ErrToReturn:    errors.New("some error"),
 				},
 				{
 					Url:            googleUrl,
-					HeadStatusCode: http.StatusOK,
+					HeadStatusCode: http.StatusInternalServerError,
 					ErrToReturn:    errors.New("some error"),
 				},
 			},
-			ExpectedStatusCode: http.StatusInternalServerError,
+			ExpectedStatusCode: http.StatusOK,
 		},
 	}
 
