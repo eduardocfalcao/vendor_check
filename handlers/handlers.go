@@ -19,6 +19,7 @@ type httpClient interface {
 	Head(url string) (*http.Response, error)
 }
 
+// HandlerGetAllStatus perforns the check operation for Amazon vendor
 func HandlerGetAmazonStatus(client httpClient) apiFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vendorResponse, err := getVendorStatus(client, amazonUrl)
@@ -37,6 +38,7 @@ func HandlerGetAmazonStatus(client httpClient) apiFunc {
 	}
 }
 
+// HandlerGetAllStatus perforns the check operation for Google vendor
 func HandlerGetGoogleStatus(client httpClient) apiFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vendorResponse, err := getVendorStatus(client, googleUrl)
@@ -53,6 +55,7 @@ func HandlerGetGoogleStatus(client httpClient) apiFunc {
 	}
 }
 
+// HandlerGetAllStatus perforns the check operation for the google and amazon vendors
 func HandlerGetAllStatus(client httpClient) apiFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var wg sync.WaitGroup
@@ -90,6 +93,11 @@ func HandlerGetAllStatus(client httpClient) apiFunc {
 	}
 }
 
+// getVendorStatus makes http HEAD requests to the given URL.
+//
+// It will always return a filled CheckVendorResponse value,
+// but in case of errors on the client, it will assign status
+// code 500 in the StatusCode of the struct field.
 func getVendorStatus(client httpClient, url string) (CheckVendorResponse, error) {
 	start := time.Now()
 	resp, err := client.Head(url)
