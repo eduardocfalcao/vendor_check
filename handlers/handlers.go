@@ -55,7 +55,7 @@ func HandlerGetGoogleStatus(client httpClient) apiFunc {
 	}
 }
 
-// HandlerGetAllStatus perforns the check operation for the google and amazon vendors
+// HandlerGetAllStatus performs the check operation for the google and amazon vendors
 func HandlerGetAllStatus(client httpClient) apiFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var wg sync.WaitGroup
