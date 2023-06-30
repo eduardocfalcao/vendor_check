@@ -55,7 +55,14 @@ func main() {
 func registerRoutes(mux *http.ServeMux) {
 	httpClient := &http.Client{Timeout: 1 * time.Second}
 
-	mux.HandleFunc("/v1/amazon-status", handlers.HandlerGetAmazonStatus(httpClient))
-	mux.HandleFunc("/v1/google-status", handlers.HandlerGetGoogleStatus(httpClient))
-	mux.HandleFunc("/v1/all-status", handlers.HandlerGetAllStatus(httpClient))
+	mux.HandleFunc("/v1/amazon-status", cors(http.HandlerFunc(handlers.HandlerGetAmazonStatus(httpClient))))
+	mux.HandleFunc("/v1/google-status", cors(http.HandlerFunc(handlers.HandlerGetGoogleStatus(httpClient))))
+	mux.HandleFunc("/v1/all-status", cors(http.HandlerFunc(handlers.HandlerGetAllStatus(httpClient))))
+}
+
+func cors(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		next(w, r)
+	}
 }
