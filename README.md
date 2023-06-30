@@ -18,6 +18,9 @@ The URL of the API is hardcoded, it wasn't parameterized and I'm aware of that. 
 
 I've picked the `date-fns` package to format the timestamp returned from the API. 
 
+I haven't added the `all-status` endpoint in the frontend application, just because it was a different response format, and I would need to make a non technical decision. 
+As I created a `VendorCard` component, to display the data of each vendor, my idea was to have another component, something like `VendorCardList`, where this one would handle the `all-status` response, and create a `VendorCard` for each vendor in the response. It would take me to refactor the `VendorCard`, since it handles the request to the API internally.
+
 ## Running the project
 
 To start the api server, run the following command in the root folder:
