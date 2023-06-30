@@ -1,26 +1,9 @@
-import { useEffect, useState } from 'react';
 import { format } from 'date-fns'; 
-import './VendorCard.css';
-
+import './VendorCard.css';import { useVendor } from './useVendor';
 
 export const VendorCard = (props) => {
-    const { url } = props
-    const [vendor, setVendor] = useState({
-        url: '',
-        status_code: 0,
-        duration: 0,
-        date: 0,
-    })
-    useEffect(() => {
-        fetch(url)
-            .then((res) => res.json())
-            .then((data) => {
-                setVendor(data);
-         })
-         .catch((err) => {
-            console.log(err);
-         });
-    }, [url])
+    const { name } = props
+    const { vendorData } = useVendor(name)
 
     return (
         <div className="VendorCard">
@@ -29,7 +12,7 @@ export const VendorCard = (props) => {
                     Url:
                 </label>
                 <label>
-                    {vendor.url}
+                    {vendorData.url}
                 </label>
             </div>
             <div className='Row'>
@@ -37,7 +20,7 @@ export const VendorCard = (props) => {
                     Status Code:
                 </label>
                 <label>
-                    {vendor.status_code}
+                    {vendorData.status_code}
                 </label>
             </div>
             <div className='Row'>
@@ -45,7 +28,7 @@ export const VendorCard = (props) => {
                     Duration:
                 </label>
                 <label>
-                    {vendor.duration}
+                    {vendorData.duration}
                 </label>
             </div>
             <div className='Row'>
@@ -53,7 +36,7 @@ export const VendorCard = (props) => {
                     Date:
                 </label>
                 <label>
-                    {format(new Date(vendor.date * 1000), `MM/dd/yyyy HH:mm:ss`)}
+                    {format(new Date(vendorData.date * 1000), `MM/dd/yyyy HH:mm:ss`)}
                 </label>
             </div>
         </div>
