@@ -4,8 +4,38 @@ This is my solution. I decided not using an api framework (such as Gin, Echo, Fi
 
 The endpoints are accepting all the HTTP method types. I haven't added a check on this because at this point, I feel that I have took too much time already working on the API.
 
-For the tests, I like to use the `assert` and `mock` packages from `github.com/stretchr/testify` library. Using the `assert` package in my opnion, helps writing the  assertion for the test cases. As the `mock` package helps creating faster mock or stub structs. But, they are totally optional, and I could live without those packages.
+For the tests, I like to use the `assert` and `mock` packages from `github.com/stretchr/testify` library. In my opinion, using the `assert` package helps writing the  assertion for the test cases. The `mock` package helps creating faster mock or stub structs. But, they are totally optional, and I could live without those packages.
 
+## Project structure
+
+I'm not sure what you will evaluate about the overall structure, but I created the frontend application inside the same repository. For sure, in a real application, I wouldn't do that, I would have a separate git repository for that. Also, I haven't added dockerfiles, or docker compose files. It would be welcome to start local environment faster, but I haven't done that in order to try to obey the time constraint on the PDF.
+
+## Frontend project
+
+The frontend project I did as quick as possible, I didn't want to take too much time. I tried to be simple. 
+
+The URL of the API is hardcoded, it wasn't parameterized and I'm aware of that. Again, just to try to obey the time constraint on the PDF.  
+
+I've picked the `date-fns` package to format the timestamp returned from the API. 
+
+## Running the project
+
+To start the api server, run the following command in the root folder:
+
+```bash
+go run main.go
+```
+
+The API server will run at port 8000. 
+
+To start the UI application, run the following command in the `frontend` folder:
+
+```bash
+npm i
+npm start
+```
+
+The frontend will run at port 3000.
 
 
 
