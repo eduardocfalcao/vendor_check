@@ -1,5 +1,12 @@
-.App {
+body {
+  background-color: #4E4F50;
+  color: #E2DED0;
+}
+
+.VendorBoard {
   text-align: center;
+  display: flex;
+  justify-content: space-around;
 }
 
 .App-logo {
